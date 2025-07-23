@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>少女风番茄时钟 🍅</title>
+    <style>
+        /* 少女风番茄时钟样式 */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #ffeef8 0%, #f0e6ff 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5a4b6b;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            text-align: center;
+            max-width: 350px;
+            width: 100%;
+        }
+
+        /* 标题区域 */
+        .header {
+            margin-bottom: 20px;
+        }
+
+        /* 模式切换 */
+        .mode-toggle {
+            margin-bottom: 20px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #d63384;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #8e7cc3;
+            font-weight: 300;
+        }
+
+        /* 计时器显示 */
+        .timer-display {
+            margin-bottom: 30px;
+        }
+
+        .timer-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            box-shadow: 0 10px 30px rgba(255, 154, 158, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .timer-circle::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        .timer-text {
+            font-size: 36px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .colon {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            50% {
+                opacity: 1;
+            }
+
+            51%,
+            100% {
+                opacity: 0.3;
+            }
+        }
+
+        .timer-label {
+            font-size: 14px;
+            color: white;
+            margin-top: 8px;
+            font-weight: 500;
+            z-index: 1;
+        }
+
+        /* 控制按钮 */
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #8e7cc3;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(252, 182, 159, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 154, 158, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #e91e63;
+            color: #e91e63;
+        }
+
+        .btn-outline:hover {
+            background: linear-gradient(135deg, #f8bbd9 0%, #e91e63 100%);
+            color: white;
+            border-color: #e91e63;
+        }
+
+        /* 统计信息 */
+        .stats {
+            margin-bottom: 25px;
+        }
+
+        .stat-item {
+            display: inline-block;
+            text-align: center;
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 28px;
+            font-weight: 700;
+            color: #d63384;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #8e7cc3;
+            font-weight: 500;
+        }
+
+        /* 设置面板 */
+        .settings {
+            margin-bottom: 20px;
+        }
+
+        .settings-panel {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 15px;
+            text-align: left;
+            display: none;
+        }
+
+        .settings-panel h3 {
+            color: #d63384;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .setting-item {
+            margin-bottom: 15px;
+        }
+
+        .setting-item label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #5a4b6b;
+        }
+
+        .setting-item input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .setting-item input:focus {
+            outline: none;
+            border-color: #d63384;
+        }
+
+        .setting-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        /* 励志语句 */
+        .motivation {
+            font-size: 14px;
+            color: #8e7cc3;
+            font-style: italic;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 480px) {
+            .container {
+                margin: 20px;
+                padding: 20px;
+            }
+
+            .timer-circle {
+                width: 160px;
+                height: 160px;
+            }
+
+            .timer-text {
+                font-size: 28px;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- 标题 -->
+        <header class="header">
+            <h1 class="title">🌸 少女风番茄时钟 🍅</h1>
+            <p class="subtitle">专注工作，优雅休息</p>
+        </header>
+
+        <!-- 模式切换 -->
+        <div class="mode-toggle">
+            <button id="toggle-mode-btn" class="btn btn-outline" style="border-color: #e91e63; color: #e91e63; background: rgba(233, 30, 99, 0.1);">工作模式</button>
+        </div>
+
+        <!-- 计时器显示 -->
+        <div class="timer-display">
+            <div class="timer-circle">
+                <div class="timer-text">
+                    <span id="timer-minutes">25</span>
+                    <span class="colon">:</span>
+                    <span id="timer-seconds">00</span>
+                </div>
+                <div class="timer-label" id="timer-label">工作时间</div>
+            </div>
+        </div>
+
+        <!-- 控制按钮 -->
+        <div class="controls">
+            <button id="start-btn" class="btn btn-primary">开始</button>
+            <button id="pause-btn" class="btn btn-secondary" style="display: none;">暂停</button>
+            <button id="resume-btn" class="btn btn-primary" style="display: none;">继续</button>
+            <button id="stop-btn" class="btn btn-danger">停止</button>
+        </div>
+
+        <!-- 统计信息 -->
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-number" id="session-count">0</span>
+                <span class="stat-label">完成番茄</span>
+            </div>
+        </div>
+
+        <!-- 设置面板 -->
+        <div class="settings">
+            <button id="settings-btn" class="btn btn-outline">⚙️ 设置</button>
+
+            <div id="settings-panel" class="settings-panel">
+                <h3>时间设置</h3>
+                <div class="setting-item">
+                    <label for="work-duration">工作时间（分钟）:</label>
+                    <input type="number" id="work-duration" value="25" min="1" max="60">
+                </div>
+                <div class="setting-item">
+                    <label for="short-break">短休息（分钟）:</label>
+                    <input type="number" id="short-break" value="5" min="1" max="30">
+                </div>
+                <div class="setting-item">
+                    <label for="long-break">长休息（分钟）:</label>
+                    <input type="number" id="long-break" value="15" min="1" max="60">
+                </div>
+                <div class="setting-buttons">
+                    <button id="save-settings" class="btn btn-primary">保存</button>
+                    <button id="cancel-settings" class="btn btn-secondary">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 励志语句 -->
+        <div class="motivation">
+            <p id="motivation-text">🌟 专注当下，成就未来！</p>
+        </div>
+    </div>
+
+    <script>
+        // 纯前端版本的番茄时钟
+        class WebPomodoroTimer {
+            constructor() {
+                this.workDuration = 25;
+                this.shortBreak = 5;
+                this.longBreak = 15;
+                this.currentTime = this.workDuration * 60;
+                this.sessionCount = 0;
+                this.isRunning = false;
+                this.isPaused = false;
+                this.isBreakMode = false;
+                this.timer = null;
+
+                this.initElements();
+                this.bindEvents();
+                this.updateDisplay();
+
+                this.motivationTexts = [
+                    '🌟 专注当下，成就未来！',
+                    '🌸 每一个番茄都是进步的见证',
+                    '💪 坚持就是胜利！',
+                    '🎯 专注力是成功的关键',
+                    '🌈 休息是为了走更远的路',
+                    '✨ 你正在变得更好！',
+                    '🦋 蜕变从专注开始',
+                    '🌺 优雅地完成每一个任务'
+                ];
+            }
+
+            initElements() {
+                this.timerMinutes = document.getElementById('timer-minutes');
+                this.timerSeconds = document.getElementById('timer-seconds');
+                this.timerLabel = document.getElementById('timer-label');
+                this.startBtn = document.getElementById('start-btn');
+                this.pauseBtn = document.getElementById('pause-btn');
+                this.resumeBtn = document.getElementById('resume-btn');
+                this.stopBtn = document.getElementById('stop-btn');
+                this.toggleModeBtn = document.getElementById('toggle-mode-btn');
+                this.sessionCount = document.getElementById('session-count');
+                this.settingsBtn = document.getElementById('settings-btn');
+                this.settingsPanel = document.getElementById('settings-panel');
+                this.workDurationInput = document.getElementById('work-duration');
+                this.shortBreakInput = document.getElementById('short-break');
+                this.longBreakInput = document.getElementById('long-break');
+                this.saveSettings = document.getElementById('save-settings');
+                this.cancelSettings = document.getElementById('cancel-settings');
+                this.motivationText = document.getElementById('motivation-text');
+            }
+
+            bindEvents() {
+                this.startBtn.addEventListener('click', () => this.start());
+                this.pauseBtn.addEventListener('click', () => this.pause());
+                this.resumeBtn.addEventListener('click', () => this.resume());
+                this.stopBtn.addEventListener('click', () => this.stop());
+                this.toggleModeBtn.addEventListener('click', () => this.toggleMode());
+                this.settingsBtn.addEventListener('click', () => this.toggleSettings());
+                this.saveSettings.addEventListener('click', () => this.saveSettingsData());
+                this.cancelSettings.addEventListener('click', () => this.hideSettings());
+            }
+
+            start() {
+                if (!this.isRunning && !this.isPaused) {
+                    this.currentTime = this.isBreakMode ? this.shortBreak * 60 : this.workDuration * 60;
+                }
+
+                this.isRunning = true;
+                this.isPaused = false;
+                this.updateButtons();
+                this.showMotivation();
+
+                this.timer = setInterval(() => {
+                    this.currentTime--;
+                    this.updateDisplay();
+
+                    if (this.currentTime <= 0) {
+                        this.complete();
+                    }
+                }, 1000);
+            }
+
+            pause() {
+                this.isRunning = false;
+                this.isPaused = true;
+                clearInterval(this.timer);
+                this.updateButtons();
+            }
+
+            resume() {
+                this.start();
+            }
+
+            stop() {
+                this.isRunning = false;
+                this.isPaused = false;
+                clearInterval(this.timer);
+                this.currentTime = this.isBreakMode ? this.shortBreak * 60 : this.workDuration * 60;
+                this.updateDisplay();
+                this.updateButtons();
+            }
+
+            complete() {
+                this.isRunning = false;
+                clearInterval(this.timer);
+
+                if (!this.isBreakMode) {
+                    this.sessionCount++;
+                    document.getElementById('session-count').textContent = this.sessionCount;
+
+                    // 播放提示音（如果浏览器支持）
+                    this.playNotificationSound();
+
+                    // 显示完成消息
+                    this.showMessage('🎉 番茄完成！该休息了~');
+                }
+
+                this.updateButtons();
+            }
+
+            toggleMode() {
+                if (!this.isRunning && !this.isPaused) {
+                    this.isBreakMode = !this.isBreakMode;
+                    this.currentTime = this.isBreakMode ? this.shortBreak * 60 : this.workDuration * 60;
+                    this.updateDisplay();
+                    this.updateModeButton();
+
+                    const mode = this.isBreakMode ? "休息模式" : "工作模式";
+                    this.showMessage(`已切换到${mode}`);
+                } else {
+                    this.showMessage('请先停止计时器再切换模式');
+                }
+            }
+
+            updateDisplay() {
+                const minutes = Math.floor(this.currentTime / 60);
+                const seconds = this.currentTime % 60;
+
+                this.timerMinutes.textContent = minutes.toString().padStart(2, '0');
+                this.timerSeconds.textContent = seconds.toString().padStart(2, '0');
+
+                // 修复标签显示逻辑 - 显示当前正在进行的时间类型
+                this.timerLabel.textContent = this.isBreakMode ? '休息时间' : '工作时间';
+
+                // 更新圆圈背景颜色以匹配模式
+                const timerCircle = document.querySelector('.timer-circle');
+                if (this.isBreakMode) {
+                    timerCircle.style.background = 'linear-gradient(135deg, #81c784 0%, #a5d6a7 50%, #c8e6c9 100%)';
+                    timerCircle.style.boxShadow = '0 10px 30px rgba(129, 199, 132, 0.3)';
+                } else {
+                    timerCircle.style.background = 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%)';
+                    timerCircle.style.boxShadow = '0 10px 30px rgba(255, 154, 158, 0.3)';
+                }
+            }
+
+            updateButtons() {
+                this.startBtn.style.display = 'none';
+                this.pauseBtn.style.display = 'none';
+                this.resumeBtn.style.display = 'none';
+
+                if (!this.isRunning && !this.isPaused) {
+                    this.startBtn.style.display = 'inline-block';
+                } else if (this.isRunning) {
+                    this.pauseBtn.style.display = 'inline-block';
+                } else if (this.isPaused) {
+                    this.resumeBtn.style.display = 'inline-block';
+                }
+            }
+
+            updateModeButton() {
+                // 按钮显示当前模式，而不是要切换到的模式
+                if (this.isBreakMode) {
+                    this.toggleModeBtn.textContent = '休息模式';
+                    this.toggleModeBtn.style.borderColor = '#81c784';
+                    this.toggleModeBtn.style.color = '#81c784';
+                    this.toggleModeBtn.style.background = 'rgba(129, 199, 132, 0.1)';
+                } else {
+                    this.toggleModeBtn.textContent = '工作模式';
+                    this.toggleModeBtn.style.borderColor = '#e91e63';
+                    this.toggleModeBtn.style.color = '#e91e63';
+                    this.toggleModeBtn.style.background = 'rgba(233, 30, 99, 0.1)';
+                }
+            }
+
+            toggleSettings() {
+                const isVisible = this.settingsPanel.style.display !== 'none';
+                this.settingsPanel.style.display = isVisible ? 'none' : 'block';
+            }
+
+            hideSettings() {
+                this.settingsPanel.style.display = 'none';
+            }
+
+            saveSettingsData() {
+                this.workDuration = parseInt(this.workDurationInput.value);
+                this.shortBreak = parseInt(this.shortBreakInput.value);
+                this.longBreak = parseInt(this.longBreakInput.value);
+
+                if (!this.isRunning && !this.isPaused) {
+                    this.currentTime = this.isBreakMode ? this.shortBreak * 60 : this.workDuration * 60;
+                    this.updateDisplay();
+                }
+
+                this.hideSettings();
+                this.showMessage('设置已保存！');
+            }
+
+            showMotivation() {
+                const randomText = this.motivationTexts[
+                    Math.floor(Math.random() * this.motivationTexts.length)
+                ];
+                this.motivationText.textContent = randomText;
+
+                this.motivationText.style.transform = 'scale(1.1)';
+                this.motivationText.style.color = '#d63384';
+
+                setTimeout(() => {
+                    this.motivationText.style.transform = 'scale(1)';
+                    this.motivationText.style.color = '#8e7cc3';
+                }, 500);
+            }
+
+            showMessage(message) {
+                const originalText = this.motivationText.textContent;
+                this.motivationText.textContent = message;
+                this.motivationText.style.color = '#d63384';
+
+                setTimeout(() => {
+                    this.motivationText.textContent = originalText;
+                    this.motivationText.style.color = '#8e7cc3';
+                }, 2000);
+            }
+
+            playNotificationSound() {
+                // 创建简单的提示音
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+
+                    oscillator.frequency.value = 800;
+                    oscillator.type = 'sine';
+
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.5);
+                } catch (e) {
+                    console.log('无法播放提示音');
+                }
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            new WebPomodoroTimer();
+        });
+    </script>
+</body>
+
+</html>
